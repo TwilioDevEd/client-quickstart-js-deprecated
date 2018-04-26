@@ -6,7 +6,7 @@
   var volumeIndicators = document.getElementById('volume-indicators');
 
   log('Requesting Capability Token...');
-  $.getJSON('https://YOUR_FUNCTION_SUBDOMAIN_HERE.twilio.io/capability-token')
+  $.getJSON('https://YOUR_FUNCTION_SUBDOMAIN_HERE.twil.io/capability-token')
     .done(function (data) {
       log('Got a token.');
       console.log('Token: ' + data.token);
