@@ -4,6 +4,8 @@
   var outputVolumeBar = document.getElementById('output-volume');
   var inputVolumeBar = document.getElementById('input-volume');
   var volumeIndicators = document.getElementById('volume-indicators');
+  
+  var device;
 
   log('Requesting Capability Token...');
   $.getJSON('https://YOUR_FUNCTION_SUBDOMAIN_HERE.twil.io/capability-token')
@@ -12,18 +14,18 @@
       console.log('Token: ' + data.token);
 
       // Setup Twilio.Device
-      Twilio.Device.setup(data.token);
+      device = new Twilio.Device(data.token);
 
-      Twilio.Device.ready(function (device) {
+      device.on('ready',function (device) {
         log('Twilio.Device Ready!');
         document.getElementById('call-controls').style.display = 'block';
       });
 
-      Twilio.Device.error(function (error) {
+      device.on('error', function (error) {
         log('Twilio.Device Error: ' + error.message);
       });
 
-      Twilio.Device.connect(function (conn) {
+      device.on('connect', function (conn) {
         log('Successfully established call!');
         document.getElementById('button-call').style.display = 'none';
         document.getElementById('button-hangup').style.display = 'inline';
@@ -31,14 +33,14 @@
         bindVolumeIndicators(conn);
       });
 
-      Twilio.Device.disconnect(function (conn) {
+      device.on('disconnect', function (conn) {
         log('Call ended.');
         document.getElementById('button-call').style.display = 'inline';
         document.getElementById('button-hangup').style.display = 'none';
         volumeIndicators.style.display = 'none';
       });
 
-      Twilio.Device.incoming(function (conn) {
+      device.on('incoming', function (conn) {
         log('Incoming connection from ' + conn.parameters.From);
         var archEnemyPhoneNumber = '+12093373517';
 
@@ -72,13 +74,17 @@
     };
 
     console.log('Calling ' + params.To + '...');
-    Twilio.Device.connect(params);
+    if (device) {
+      device.connect(params);
+    }
   };
 
   // Bind button to hangup call
   document.getElementById('button-hangup').onclick = function () {
     log('Hanging up...');
-    Twilio.Device.disconnectAll();
+    if (device) {
+      device.disconnectAll();
+    }
   };
 
   document.getElementById('get-devices').onclick = function() {
