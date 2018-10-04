@@ -6,8 +6,11 @@
   var volumeIndicators = document.getElementById('volume-indicators');
 
   log('Requesting Capability Token...');
-  $.getJSON('https://YOUR_FUNCTION_SUBDOMAIN_HERE.twil.io/capability-token')
-    .done(function (data) {
+  fetch('https://YOUR_FUNCTION_SUBDOMAIN_HERE.twil.io/capability-token')
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
       log('Got a token.');
       console.log('Token: ' + data.token);
 
@@ -90,7 +93,7 @@
     var selectedDevices = [].slice.call(speakerDevices.children)
       .filter(function(node) { return node.selected; })
       .map(function(node) { return node.getAttribute('data-id'); });
-    
+
     Twilio.Device.audio.speakerDevices.set(selectedDevices);
   });
 
@@ -98,7 +101,7 @@
     var selectedDevices = [].slice.call(ringtoneDevices.children)
       .filter(function(node) { return node.selected; })
       .map(function(node) { return node.getAttribute('data-id'); });
-    
+
     Twilio.Device.audio.ringtoneDevices.set(selectedDevices);
   });
 
