@@ -35,6 +35,12 @@ https://YOUR_FUNCTION_SUBDOMAIN_HERE.twilio.io/capability-token
 
 The subdomain you use for Twilio Functions will be the same for any functions you create - including the capability token and voice call functions.
 
+### Warning
+
+NOTE: You should not use Twilio Functions to generate capability tokens for your app in production. Each function has a publicly accessible URL which a malicious actor could use to obtain tokens for your app and abuse them.
+
+[Visit our guide](https://www.twilio.com/docs/voice/client/capability-tokens) to learn how to generate capability tokens in your own C#, Java, Node.js, PHP, Python, or Ruby application.
+
 ## Setting up a local HTTP server
 
 You'll need to load the front end of your web application from a web server for Twilio Client to connect successfully from Chrome (it should work in Firefox if you load it from the file system). The easiest way to do that is to install a local HTTP server like [http-server](https://github.com/indexzero/http-server)
