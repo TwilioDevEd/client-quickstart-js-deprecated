@@ -9,9 +9,6 @@
 
   log('Requesting Capability Token...');
   $.getJSON('https://YOUR_FUNCTION_SUBDOMAIN_HERE.twil.io/capability-token')
-    .then(function (response) {
-      return response.json();
-    })
     .then(function (data) {
       log('Got a token.');
       console.log('Token: ' + data.token);
@@ -58,14 +55,15 @@
 
       setClientNameUI(data.identity);
 
-      Twilio.Device.audio.on('deviceChange', updateAllDevices);
+      device.audio.on('deviceChange', updateAllDevices.bind(device));
 
       // Show audio selection UI if it is supported by the browser.
-      if (Twilio.Device.audio.isSelectionSupported) {
+      if (device.audio.isOutputSelectionSupported) {
         document.getElementById('output-selection').style.display = 'block';
       }
     })
-    .fail(function () {
+    .catch(function (err) {
+      console.log(err);
       log('Could not get a token from server!');
     });
 
@@ -92,15 +90,15 @@
 
   document.getElementById('get-devices').onclick = function() {
     navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(updateAllDevices);
-  };
+      .then(updateAllDevices.bind(device));
+  }
 
   speakerDevices.addEventListener('change', function() {
     var selectedDevices = [].slice.call(speakerDevices.children)
       .filter(function(node) { return node.selected; })
       .map(function(node) { return node.getAttribute('data-id'); });
 
-    Twilio.Device.audio.speakerDevices.set(selectedDevices);
+    device.audio.speakerDevices.set(selectedDevices);
   });
 
   ringtoneDevices.addEventListener('change', function() {
@@ -108,11 +106,11 @@
       .filter(function(node) { return node.selected; })
       .map(function(node) { return node.getAttribute('data-id'); });
 
-    Twilio.Device.audio.ringtoneDevices.set(selectedDevices);
+    device.audio.ringtoneDevices.set(selectedDevices);
   });
 
   function bindVolumeIndicators(connection) {
-    connection.volume(function(inputVolume, outputVolume) {
+    connection.on('volume', function(inputVolume, outputVolume) {
       var inputColor = 'red';
       if (inputVolume < .50) {
         inputColor = 'green';
@@ -136,40 +134,45 @@
   }
 
   function updateAllDevices() {
-    updateDevices(speakerDevices, Twilio.Device.audio.speakerDevices.get());
-    updateDevices(ringtoneDevices, Twilio.Device.audio.ringtoneDevices.get());
+    updateDevices(speakerDevices, device.audio.speakerDevices.get());
+    updateDevices(ringtoneDevices, device.audio.ringtoneDevices.get());
+
+
+    // updateDevices(speakerDevices, );
+    // updateDevices(ringtoneDevices, device);
+  }
+
+  // Update the available ringtone and speaker devices
+  function updateDevices(selectEl, selectedDevices) {
+    selectEl.innerHTML = '';
+
+    device.audio.availableOutputDevices.forEach(function(device, id) {
+      var isActive = (selectedDevices.size === 0 && id === 'default');
+      selectedDevices.forEach(function(device) {
+        if (device.deviceId === id) { isActive = true; }
+      });
+
+      var option = document.createElement('option');
+      option.label = device.label;
+      option.setAttribute('data-id', id);
+      if (isActive) {
+        option.setAttribute('selected', 'selected');
+      }
+      selectEl.appendChild(option);
+    });
+  }
+
+  // Activity log
+  function log(message) {
+    var logDiv = document.getElementById('log');
+    logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
+
+  // Set the client name in the UI
+  function setClientNameUI(clientName) {
+    var div = document.getElementById('client-name');
+    div.innerHTML = 'Your client name: <strong>' + clientName +
+      '</strong>';
   }
 });
-
-// Update the available ringtone and speaker devices
-function updateDevices(selectEl, selectedDevices) {
-  selectEl.innerHTML = '';
-  Twilio.Device.audio.availableOutputDevices.forEach(function(device, id) {
-    var isActive = (selectedDevices.size === 0 && id === 'default');
-    selectedDevices.forEach(function(device) {
-      if (device.deviceId === id) { isActive = true; }
-    });
-
-    var option = document.createElement('option');
-    option.label = device.label;
-    option.setAttribute('data-id', id);
-    if (isActive) {
-      option.setAttribute('selected', 'selected');
-    }
-    selectEl.appendChild(option);
-  });
-}
-
-// Activity log
-function log(message) {
-  var logDiv = document.getElementById('log');
-  logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
-  logDiv.scrollTop = logDiv.scrollHeight;
-}
-
-// Set the client name in the UI
-function setClientNameUI(clientName) {
-  var div = document.getElementById('client-name');
-  div.innerHTML = 'Your client name: <strong>' + clientName +
-    '</strong>';
-}
