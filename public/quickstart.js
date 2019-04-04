@@ -14,7 +14,15 @@
       console.log('Token: ' + data.token);
 
       // Setup Twilio.Device
-      device = new Twilio.Device(data.token);
+      device = new Twilio.Device(data.token, {
+        // Set Opus as our preferred codec. Opus generally performs better, requiring less bandwidth and
+        // providing better audio quality in restrained network conditions. Opus will be default in 2.0.
+        codecPreferences: ['opus', 'pcmu'],
+        // Use fake DTMF tones client-side. Real tones are still sent to the other end of the call,
+        // but the client-side DTMF tones are fake. This prevents the local mic capturing the DTMF tone
+        // a second time and sending the tone twice. This will be default in 2.0.
+        fakeLocalDTMF: true,
+      });
 
       device.on('ready',function (device) {
         log('Twilio.Device Ready!');
