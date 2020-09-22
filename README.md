@@ -22,7 +22,7 @@ After you successfully put in the configuration, you'll have two Twilio Function
 
 ## Configuration and setup
 
-[Configure your TwiML app](https://www.twilio.com/console/phone-numbers/dev-tools/twiml-apps)'s
+[Configure your TwiML app](https://www.twilio.com/console/voice/twiml/apps)'s
 Voice "REQUEST URL" to be your Twilio Function URL - you can copy and paste the URL directly from the voice calls function page. For example:
 
 ![screenshot of twiml app](https://s3.amazonaws.com/com.twilio.prod.twilio-docs/images/ClientJSCopyVoiceURL.width-500.png)
