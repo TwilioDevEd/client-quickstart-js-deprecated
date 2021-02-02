@@ -2,6 +2,8 @@
   <img src="https://static0.twilio.com/marketing/bundles/marketing/img/logos/wordmark-red.svg" alt="Twilio" width="250" />
 </a>
 
+# This tutorial is deprecated
+### Please see [the new Javascript Client Quickstart](https://www.twilio.com/docs/voice/client/javascript/quickstart) in the Twilio Docs
 
 This application should give you a ready-made starting point for writing your
 own voice web applications with Twilio Client. Before we begin, we need to collect
